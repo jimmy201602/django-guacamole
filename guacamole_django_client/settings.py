@@ -126,12 +126,13 @@ STATICFILES_DIRS = [
 
 
 # guacd daemon host address and port
-GUACD_HOST = '172.17.0.2'
+GUACD_HOST = ''
 GUACD_PORT = 4822
 
 # ssh login settings
 SSH_HOST = ''
 SSH_PORT = 22
-SSH_USER = 'root'
+SSH_USER = ''
 SSH_PASSWORD = ''
+
 

@@ -20,6 +20,7 @@
     var display = document.getElementById("display");
 
     // Instantiate client, using an HTTP tunnel for communications.
+    //http://guacamole.apache.org/doc/guacamole-common-js/Guacamole.WebSocketTunnel.html
     var guac = new Guacamole.Client(
         new Guacamole.HTTPTunnel("tunnel")
     );
@@ -29,7 +30,8 @@
 
     // Error handler
     guac.onerror = function(error) {
-        alert(error);
+        <!--alert(error);-->
+        console.log(error);
     };
 
     // Connect
