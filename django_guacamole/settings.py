@@ -38,7 +38,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django_extensions',
-    'core',
+    'guacamole',
+    'channels'
 ]
 
 MIDDLEWARE = [
@@ -51,7 +52,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-ROOT_URLCONF = 'guacamole_django_client.urls'
+ROOT_URLCONF = 'django_guacamole.urls'
 
 TEMPLATES = [
     {
@@ -69,7 +70,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'guacamole_django_client.wsgi.application'
+WSGI_APPLICATION = 'django_guacamole.wsgi.application'
 
 
 # Database
@@ -131,8 +132,24 @@ GUACD_PORT = 4822
 
 # ssh login settings
 SSH_HOST = ''
-SSH_PORT = 22
+SSH_PORT = 3389
 SSH_USER = ''
 SSH_PASSWORD = ''
 
+
+# Channels settings
+CHANNEL_LAYERS = {
+    "default": {
+       "BACKEND": "asgi_redis.RedisChannelLayer",  # use redis backend
+       "CONFIG": {
+           "hosts": [("localhost", 6379)],  # set redis address
+           "channel_capacity": {
+                                   "http.request": 1000,
+                                   "websocket.send*": 10000,
+                                },
+           "capacity": 10000,           
+           },
+       "ROUTING": "django_guacamole.routing.channel_routing",  # load routing from our routing.py file
+       },
+}
 

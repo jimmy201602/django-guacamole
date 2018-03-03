@@ -21,7 +21,7 @@ pending_read_request = threading.Event()
 
 
 def index(request):
-    return render(request, 'core/index.html', {})
+    return render(request, 'index.html', {})
 
 
 @csrf_exempt
@@ -44,12 +44,11 @@ def tunnel(request):
 def _do_connect(request):
     # Connect to guacd daemon
     client = GuacamoleClient(settings.GUACD_HOST, settings.GUACD_PORT)
-    kwargs = {'secrity':'any'}
     client.handshake(protocol='rdp',
                      hostname=settings.SSH_HOST,
                      port=settings.SSH_PORT,
                      username=settings.SSH_USER,
-                     password=settings.SSH_PASSWORD,**kwargs)
+                     password=settings.SSH_PASSWORD)
                      #security='any',)
 
     cache_key = str(uuid.uuid4())

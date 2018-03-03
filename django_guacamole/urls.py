@@ -16,7 +16,7 @@ Including another URLconf
 from django.conf.urls import url
 from django.contrib import admin
 
-from core import views as core_views
+from guacamole import views as core_views
 
 urlpatterns = [
     url(r'^$', core_views.index, name='index'),
