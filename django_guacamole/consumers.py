@@ -7,6 +7,14 @@ except ImportError:
 import sys
 from django.utils.encoding import smart_unicode
 from guacamole.guacamolethreading import get_redis_instance
+from guacamole.client import GuacamoleClient
+import uuid
+from django.conf import settings
+from guacamole.guacamolethreading import GuacamoleThread,GuacamoleThreadWrite
+try:
+    import simplejson as json
+except ImportError:
+    import json
 
 class GuacamoleWebsocket(WebsocketConsumer):
     
@@ -18,12 +26,29 @@ class GuacamoleWebsocket(WebsocketConsumer):
     
     def connect(self, message):
         self.message.reply_channel.send({"accept": True})
-        self.message.reply_channel.send({"text":json.dumps(['channel_name',self.message.reply_channel.name])},immediately=True)
+        client = GuacamoleClient(settings.GUACD_HOST, settings.GUACD_PORT)
+        client.handshake(protocol='rdp',
+                         hostname=settings.SSH_HOST,
+                         port=settings.SSH_PORT,
+                         username=settings.SSH_USER,
+                         password=settings.SSH_PASSWORD)
+                         #security='any',)
+        cache_key = str(uuid.uuid4())
+        self.message.reply_channel.send({"text":json.dumps(cache_key)},immediately=True)
+
+        guacamolethread=GuacamoleThread(self.message,client)
+        guacamolethread.setDaemon = True
+        guacamolethread.start()
+
+        guacamolethreadwrite=GuacamoleThreadWrite(self.message,client)
+        guacamolethreadwrite.setDaemon = True
+        guacamolethreadwrite.start()
         
     def disconnect(self, message):
-        #close threading       
+        #close threading
+        print 'disconnect'
         self.message.reply_channel.send({"accept":False})
-        self.closeguacamole()
+        #self.closeguacamole()
     
     def queue(self):
         queue = get_redis_instance()
@@ -35,5 +60,5 @@ class GuacamoleWebsocket(WebsocketConsumer):
         self.queue().publish(self.message.reply_channel.name, json.dumps(['close']))
         
     def receive(self,text=None, bytes=None, **kwargs):
-        print 11,text
+        print text
         self.queue().publish(self.message.reply_channel.name, json.loads(text)[1])
