@@ -14,6 +14,8 @@ try:
 except ImportError:
     import json
 import ast
+from django.conf import settings
+
 def get_redis_instance():
     from django_guacamole.asgi import channel_layer
     return channel_layer._connection_list[0]
@@ -30,12 +32,12 @@ class GuacamoleWebsocket(WebsocketConsumer):
         self.message.reply_channel.send({"accept": True})
         logging.info("Connection!")
         try:
-            guacamole_server = InetGuacamoleSocket("", 4822)
-            session_configuration = GuacamoleConfiguration("vnc")
-            session_configuration.setParameter("hostname", "")
-            session_configuration.setParameter("port", "")
-            session_configuration.setParameter("username", "")
-            session_configuration.setParameter("password", "")
+            guacamole_server = InetGuacamoleSocket(settings.GUACD_HOST, settings.GUACD_PORT)
+            session_configuration = GuacamoleConfiguration("rdp")
+            session_configuration.setParameter("hostname", settings.SSH_HOST)
+            session_configuration.setParameter("port", settings.SSH_PORT)
+            session_configuration.setParameter("username", settings.SSH_USER)
+            session_configuration.setParameter("password", settings.SSH_PASSWORD)
 
             tunnel = SimpleGuacamoleTunnel(
                 socket=ConfiguredGuacamoleSocket(guacamole_server, session_configuration)
@@ -54,7 +56,7 @@ class GuacamoleWebsocket(WebsocketConsumer):
         
     def disconnect(self, message):
         #close threading
-        print 'disconnect'
+        logging.info('disconnect')
         self.message.reply_channel.send({"accept":False})
     
     def queue(self):

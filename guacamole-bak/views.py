@@ -73,7 +73,6 @@ def _do_read(request, cache_key):
             pending_read_request.clear()
 
             while True:
-                #instruction = '5.mouse,3.400,3.500;'
                 instruction = client.receive()
                 if instruction:
                     yield instruction

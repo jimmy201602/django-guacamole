@@ -4,6 +4,7 @@ import select
 from GuacamoleReader import GuacamoleReader
 from guacamole.exceptions import GuacamoleServerException, GuacamoleUpstreamTimeoutException
 from guacamole.protocol.GuacamoleInstruction import GuacamoleInstruction
+import socket
 
 # TODO cleanup
 class ReaderGuacamoleReader(GuacamoleReader):
