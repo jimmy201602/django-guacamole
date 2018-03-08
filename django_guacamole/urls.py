@@ -20,7 +20,7 @@ from guacamole import views as core_views
 
 urlpatterns = [
     url(r'^$', core_views.index, name='index'),
-    url(r'^tunnel$', core_views.tunnel, name='tunnel'),
+    #url(r'^tunnel$', core_views.tunnel, name='tunnel'),
 
     url(r'^admin/', admin.site.urls),
 ]

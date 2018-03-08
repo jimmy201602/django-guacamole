@@ -9,6 +9,8 @@ def get_redis_instance():
     from django_guacamole.asgi import channel_layer
     return channel_layer._connection_list[0]
 import ast
+readlock=threading.RLock()
+writelock=threading.RLock()
 
 class GuacamoleThread(threading.Thread):
     """Thread class with a stop() method. The thread itself has to check
@@ -54,7 +56,8 @@ class GuacamoleThread(threading.Thread):
                         #self.stop()
         instruction = self.client.receive()
         #print instruction
-        channel_layer.send(self.message.reply_channel.name,{"text":json.dumps(instruction)})
+        print 'read',instruction
+        channel_layer.send(self.message.reply_channel.name,{"text":instruction})
 
 
 class GuacamoleThreadWrite(GuacamoleThread):
@@ -76,4 +79,9 @@ class GuacamoleThreadWrite(GuacamoleThread):
                 if isinstance(data,(list,tuple)):
                     if data[0] == 'close':
                         self.stop()
-                self.client.send(str(data))
+                if isinstance(data,(long,int)) and data == 1:
+                    pass
+                else:
+                    print 'write',data
+                    with writelock:
+                        self.client.send(str(data))

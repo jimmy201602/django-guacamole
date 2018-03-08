@@ -132,7 +132,7 @@ GUACD_PORT = 4822
 
 # ssh login settings
 SSH_HOST = ''
-SSH_PORT = 3389
+SSH_PORT = 5901
 SSH_USER = ''
 SSH_PASSWORD = ''
 
@@ -153,3 +153,4 @@ CHANNEL_LAYERS = {
        },
 }
 
+CHANNELS_WS_PROTOCOLS = ["guacamole"]

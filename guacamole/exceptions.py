@@ -1,19 +1,17 @@
-"""
-The MIT License (MIT)
+from guacamole.protocol.GuacamoleStatus import GuacamoleStatus
 
-Copyright (c) 2014 - 2016 Mohab Usama
-"""
+class GuacamoleException(Exception):
+    def getStatus(self):
+        return GuacamoleStatus.SERVER_ERROR
 
+class GuacamoleServerException(GuacamoleException):
+    pass
 
-class GuacamoleError(Exception):
-    def __init__(self, message):
-        super(GuacamoleError, self).__init__(
-            'Guacamole Protocol Error. %s' % message
-        )
+class GuacamoleUpstreamException(GuacamoleException):
+    def getStatus(self):
+        return GuacamoleStatus.UPSTREAM_ERROR
 
+class GuacamoleUpstreamTimeoutException(GuacamoleUpstreamException):
+    def getStatus(self):
+        return GuacamoleStatus.UPSTREAM_TIMEOUT
 
-class InvalidInstruction(Exception):
-    def __init__(self, message):
-        super(InvalidInstruction, self).__init__(
-            'Invalid Guacamole Instruction! %s' % message
-        )
