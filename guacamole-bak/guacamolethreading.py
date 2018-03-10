@@ -9,6 +9,8 @@ def get_redis_instance():
     from django_guacamole.asgi import channel_layer
     return channel_layer._connection_list[0]
 import ast
+import logging
+logger = logging.getLogger(__name__)
 
 class GuacamoleThread(threading.Thread):
     """Thread class with a stop() method. The thread itself has to check
@@ -20,8 +22,9 @@ class GuacamoleThread(threading.Thread):
         self.message = message
         self.queue = self.redis_queue()
         self.client = client
-        self.reader_lock = threading.RLock()
-        self.writer_lock = threading.RLock()
+        self.read_lock = threading.RLock()
+        self.write_lock = threading.RLock()
+        self.pending_read_request = threading.Event()        
         
     def stop(self):
         self._stop_event.set()
@@ -43,22 +46,22 @@ class GuacamoleThread(threading.Thread):
                     #if data[0] == 'close':
                         #self.stop()
         from django_guacamole.asgi import channel_layer
-        #while True:
-            #text = self.queue.get_message()
-            #try:
-                #data = ast.literal_eval(text['data'])
-            #except Exception,e:
-                #data = text
+        with self.read_lock:
+            #self.pending_read_request.clear()
 
-            #if text:
-                #if isinstance(data,(list,tuple)):
-                    #if data[0] == 'close':
-                        #self.stop()
-        with self.reader_lock:
-            instruction = self.client.receive()
-            #print instruction
-            print 'read',instruction
-            channel_layer.send(self.message.reply_channel.name,{"text":instruction})
+            while True:
+                instruction = self.client.receive()
+                if instruction:
+                    channel_layer.send(self.message.reply_channel.name,{"text":instruction})
+                else:
+                    break
+    
+                #if self.pending_read_request.is_set():
+                    #logger.info('Letting another request take over.')
+                    #break
+
+            # End-of-instruction marker
+            channel_layer.send(self.message.reply_channel.name,{"text":'0.;'})
 
 
 class GuacamoleThreadWrite(GuacamoleThread):
@@ -83,6 +86,6 @@ class GuacamoleThreadWrite(GuacamoleThread):
                 if isinstance(data,(long,int)) and data == 1:
                     pass
                 else:
-                    print 'write',data
-                    with self.writer_lock:
+                    #print 'write',data
+                    with self.write_lock:
                         self.client.send(str(data))

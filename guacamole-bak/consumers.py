@@ -34,7 +34,7 @@ class GuacamoleWebsocket(WebsocketConsumer):
                          password=settings.SSH_PASSWORD)
                          #security='any',)
         #cache_key = str(uuid.uuid4())
-        #self.message.reply_channel.send({"text":'0.,36.83940151-b2f9-4743-b5e4-b6eb85a97743;'},immediately=True)
+        self.message.reply_channel.send({"text":'0.,36.83940151-b2f9-4743-b5e4-b6eb85a97743;'},immediately=True)
        #'0.,36.83940151-b2f9-4743-b5e4-b6eb85a97743;'
 
         guacamolethread=GuacamoleThread(self.message,client)
@@ -61,5 +61,5 @@ class GuacamoleWebsocket(WebsocketConsumer):
         self.queue().publish(self.message.reply_channel.name, json.dumps(['close']))
         
     def receive(self,text=None, bytes=None, **kwargs):
-        print 'receive',text
+        #print 'receive',text
         self.queue().publish(self.message.reply_channel.name, text)
