@@ -11,6 +11,7 @@ def get_redis_instance():
 import ast
 import logging
 logger = logging.getLogger(__name__)
+import time
 
 class GuacamoleThread(threading.Thread):
     """Thread class with a stop() method. The thread itself has to check
@@ -89,3 +90,5 @@ class GuacamoleThreadWrite(GuacamoleThread):
                     #print 'write',data
                     with self.write_lock:
                         self.client.send(str(data))
+            else:
+                time.sleep(0.001)
